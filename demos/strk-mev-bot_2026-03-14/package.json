@@ -1,0 +1,22 @@
+{
+  "name": "strk-mev-bot-demo",
+  "version": "1.0.0",
+  "description": "Educational MEV bot demo for Starknet",
+  "main": "src/demo.js",
+  "scripts": {
+    "demo": "node src/demo.js",
+    "compile": "tsc"
+  },
+  "keywords": [
+    "mev",
+    "starknet",
+    "blockchain",
+    "trading",
+    "demo"
+  ],
+  "author": "OpenClaw Demo",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

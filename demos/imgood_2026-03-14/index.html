@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imgood Demo - 简单图片查看器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .upload-area {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: #f093fb;
+        }
+
+        .upload-area.dragover {
+            background: rgba(240, 147, 251, 0.1);
+            border-color: #f093fb;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #555;
+            font-size: 1.2rem;
+        }
+
+        .upload-hint {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .image-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 1rem;
+        }
+
+        .image-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .image-size {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #f093fb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e080eb;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .stats-item {
+            display: inline-block;
+            margin: 0 1rem;
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Imgood Demo</h1>
+            <p>简单优雅的图片查看器</p>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">点击或拖放图片到这里</div>
+            <div class="upload-hint">支持 JPG、PNG、GIF 格式</div>
+            <input type="file" id="fileInput" accept="image/*" multiple>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stats-item">
+                📊 <span id="imageCount">0</span> 张图片
+            </div>
+            <div class="stats-item">
+                📁 <span id="totalSize">0 KB</span>
+            </div>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <div class="empty-state" id="emptyState">
+                <p>还没有图片</p>
+                <p>上传一些图片开始体验吧！</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const gallery = document.getElementById('gallery');
+        const emptyState = document.getElementById('emptyState');
+        const imageCount = document.getElementById('imageCount');
+        const totalSize = document.getElementById('totalSize');
+        const stats = document.getElementById('stats');
+
+        let images = [];
+
+        // 点击上传区域
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 文件选择
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // 拖放上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // 处理文件
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        const imageData = {
+                            id: Date.now() + Math.random(),
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            data: e.target.result
+                        };
+                        
+                        images.push(imageData);
+                        addImageToGallery(imageData);
+                        updateStats();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // 添加图片到画廊
+        function addImageToGallery(imageData) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.innerHTML = `
+                <img src="${imageData.data}" alt="${imageData.name}">
+                <div class="image-info">
+                    <div class="image-name">${imageData.name}</div>
+                    <div class="image-size">${formatSize(imageData.size)}</div>
+                    <div class="image-actions">
+                        <button class="btn btn-primary" onclick="viewImage(${imageData.id})">
+                            👁 查看
+                        </button>
+                        <button class="btn btn-secondary" onclick="removeImage(${imageData.id})">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 在 empty state 之前插入
+            gallery.insertBefore(card, emptyState);
+            
+            // 隐藏 empty state
+            emptyState.style.display = 'none';
+            
+            // 显示统计
+            stats.style.display = 'block';
+        }
+
+        // 查看图片
+        function viewImage(id) {
+            const image = images.find(img => img.id === id);
+            if (image) {
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>${image.name}</title>
+                        <style>
+                            body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f0f0; }
+                            img { max-width: 90vw; max-height: 90vh; }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${image.data}" alt="${image.name}">
+                    </body>
+                    </html>
+                `);
+            }
+        }
+
+        // 删除图片
+        function removeImage(id) {
+            images = images.filter(img => img.id !== id);
+            renderGallery();
+            updateStats();
+        }
+
+        // 渲染画廊
+        function renderGallery() {
+            // 清空所有 card（保留 empty state）
+            const cards = gallery.querySelectorAll('.image-card');
+            cards.forEach(card => card.remove());
+            
+            // 重新添加
+            images.forEach(imageData => {
+                addImageToGallery(imageData);
+            });
+            
+            // 如果没有图片，显示 empty state
+            if (images.length === 0) {
+                emptyState.style.display = 'block';
+                stats.style.display = 'none';
+            }
+        }
+
+        // 更新统计
+        function updateStats() {
+            imageCount.textContent = images.length;
+            
+            const totalBytes = images.reduce((sum, img) => sum + img.size, 0);
+            totalSize.textContent = formatSize(totalBytes);
+        }
+
+        // 格式化文件大小
+        function formatSize(bytes) {
+            if (bytes < 1024) {
+                return bytes + ' B';
+            } else if (bytes < 1024 * 1024) {
+                return (bytes / 1024).toFixed(1) + ' KB';
+            } else {
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+        }
+    </script>
+</body>
+</html>

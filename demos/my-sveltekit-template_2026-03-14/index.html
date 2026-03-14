@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SvelteKit Template Demo</title>
+    <style>
+        :root {
+            --primary: #ff3e00;
+            --secondary: #64748b;
+            --accent: #ec4899;
+            --bg: #ffffff;
+            --text: #1a1a2e;
+            --gray: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        .app {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: var(--gray);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feature-desc {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .demo-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .counter {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .counter-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .counter-card:hover {
+            transform: scale(1.1);
+        }
+
+        .counter-value {
+            font-size: 3rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .counter-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 62, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+        }
+
+        .form-demo {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .result {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .app {
+                padding: 1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .counter {
+                flex-direction: column;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="hero">
+            <h1>🚀 SvelteKit 风格模板</h1>
+            <p>现代化、响应式的 Web 应用模板，演示组件化开发概念</p>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">响应式状态</div>
+                <div class="feature-desc">实时状态管理和自动更新 UI</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧩</div>
+                <div class="feature-title">组件化</div>
+                <div class="feature-desc">可复用的组件结构和样式封装</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <div class="feature-title">动画效果</div>
+                <div class="feature-desc">流畅的过渡和交互反馈</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">移动优先</div>
+                <div class="feature-desc">自适应各种屏幕尺寸</div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎮 交互演示</h2>
+            
+            <div class="counter">
+                <div class="counter-card">
+                    <span class="counter-value" id="clickCount">0</span>
+                    <span class="counter-label">点击次数</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-value" id="timeCount">00:00</span>
+                    <span class="counter-label">运行时间</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-value" id="charCount">0</span>
+                    <span class="counter-label">字符数</span>
+                </div>
+            </div>
+
+            <div class="form-demo">
+                <div class="form-group">
+                    <label for="message">输入消息：</label>
+                    <input type="text" id="message" placeholder="在这里输入一些文字..." maxlength="100">
+                </div>
+                <div>
+                    <button class="btn" onclick="handleClick()">👆 点击计数</button>
+                    <button class="btn btn-secondary" onclick="toggleTimer()">⏱️ 开始/停止</button>
+                    <button class="btn btn-accent" onclick="resetDemo()">🔄 重置</button>
+                </div>
+                <div class="result" id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 状态管理（类似 Svelte 的 store）
+        const state = {
+            clicks: 0,
+            timerRunning: false,
+            startTime: null,
+            timerInterval: null,
+            message: ''
+        };
+
+        const elements = {
+            clickCount: document.getElementById('clickCount'),
+            timeCount: document.getElementById('timeCount'),
+            charCount: document.getElementById('charCount'),
+            message: document.getElementById('message'),
+            result: document.getElementById('result')
+        };
+
+        // 更新 UI
+        function updateUI() {
+            elements.clickCount.textContent = state.clicks;
+            updateCharCount();
+        }
+
+        function updateCharCount() {
+            state.message = elements.message.value;
+            elements.charCount.textContent = state.message.length;
+        }
+
+        // 处理点击
+        function handleClick() {
+            state.clicks++;
+            updateUI();
+            showResult(`点击次数: ${state.clicks}`);
+        }
+
+        // 计时器
+        function toggleTimer() {
+            state.timerRunning = !state.timerRunning;
+            
+            if (state.timerRunning) {
+                state.startTime = Date.now();
+                state.timerInterval = setInterval(updateTimer, 1000);
+                showResult('计时器已启动');
+            } else {
+                clearInterval(state.timerInterval);
+                showResult('计时器已停止');
+            }
+        }
+
+        function updateTimer() {
+            const elapsed = Date.now() - state.startTime;
+            const seconds = Math.floor(elapsed / 1000) % 60;
+            const minutes = Math.floor(elapsed / 60000);
+            
+            elements.timeCount.textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 重置
+        function resetDemo() {
+            state.clicks = 0;
+            state.timerRunning = false;
+            state.startTime = null;
+            clearInterval(state.timerInterval);
+            elements.message.value = '';
+            state.message = '';
+            
+            elements.timeCount.textContent = '00:00';
+            updateUI();
+            showResult('演示已重置');
+        }
+
+        // 显示结果
+        function showResult(message) {
+            elements.result.textContent = message;
+            elements.result.classList.add('show');
+            
+            setTimeout(() => {
+                elements.result.classList.remove('show');
+            }, 2000);
+        }
+
+        // 监听输入
+        elements.message.addEventListener('input', updateCharCount);
+
+        // 初始化
+        updateUI();
+    </script>
+</body>
+</html>

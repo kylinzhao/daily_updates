@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Updates - Demo Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-header {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+        }
+
+        .demo-header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .demo-header .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .demo-body {
+            padding: 1.5rem;
+        }
+
+        .demo-description {
+            color: #555;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .demo-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .demo-status {
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .status-running {
+            background: #e8f5e8;
+            color: #2c5282;
+        }
+
+        .status-standalone {
+            background: #c6f6d5;
+            color: #fff;
+        }
+
+        .status-not-available {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Daily Updates Demo Hub</h1>
+            <p>GitHub Trending 项目演示中心</p>
+        </div>
+
+        <div class="demo-grid" id="demoGrid">
+            <!-- Demos will be loaded here -->
+        </div>
+
+        <div class="footer">
+            <p>
+                <a href="https://github.com/kylinzhao/daily_updates" target="_blank">
+                    View on GitHub →
+                </a>
+            </p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+                自动生成 | 每日更新
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const demos = [
+            {
+                name: 'API Key Generator',
+                date: '2026-03-14',
+                description: '基于 Flask 的 API 密钥生成服务，使用 UUID 生成唯一密钥，支持批量注册和验证。',
+                language: 'Python',
+                path: 'tavily-key-generator_2026-03-14',
+                status: 'standalone',
+                canRun: true,
+                runPath: './tavily-key-generator_2026-03-14/example.sh'
+            },
+            {
+                name: 'Modern Web Template',
+                date: '2026-03-14',
+                description: '现代化的 Web 模板，演示 Svelte 风格的组件化结构、响应式设计和动画效果。',
+                language: 'JavaScript',
+                path: 'my-sveltekit-template_2026-03-14',
+                status: 'standalone',
+                canRun: true,
+                runPath: './my-sveltekit-template_2026-03-14/index.html'
+            },
+            {
+                name: 'MEV Trading Bot',
+                date: '2026-03-14',
+                description: 'TypeScript MEV 交易机器人教育性演示，展示夹击交易的基本概念和逻辑。',
+                language: 'TypeScript',
+                path: 'strk-mev-bot_2026-03-14',
+                status: 'not-available',
+                canRun: false,
+                reason: '教育性演示，不连接真实网络'
+            },
+            {
+                name: 'Coming Soon...',
+                date: 'TBD',
+                description: '更多演示项目正在开发中，敬请期待。',
+                language: '-',
+                path: '',
+                status: 'not-available',
+                canRun: false,
+                reason: '正在开发'
+            },
+            {
+                name: 'Coming Soon...',
+                date: 'TBD',
+                description: '更多演示项目正在开发中，敬请期待。',
+                language: '-',
+                path: '',
+                status: 'not-available',
+                canRun: false,
+                reason: '正在开发'
+            }
+        ];
+
+        function renderDemos() {
+            const grid = document.getElementById('demoGrid');
+            
+            grid.innerHTML = demos.map(demo => `
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <h2>${demo.name}</h2>
+                        <span class="badge">${demo.language}</span>
+                    </div>
+                    <div class="demo-body">
+                        <p class="demo-description">${demo.description}</p>
+                        <div class="demo-actions">
+                            ${demo.canRun ? `
+                                <a href="${demo.runPath}" class="btn btn-primary" target="_blank">
+                                    ▶ 运行 Demo
+                                </a>
+                            ` : ''}
+                            <a href="./${demo.path}/README.md" class="btn btn-secondary" target="_blank">
+                                📖 查看文档
+                            </a>
+                        </div>
+                        <div class="demo-status status-${demo.status}">
+                            ${getStatusText(demo)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(demo) {
+            switch (demo.status) {
+                case 'running':
+                    return '✅ 可实时运行';
+                case 'standalone':
+                    return '🔧 独立运行（需要本地环境）';
+                case 'not-available':
+                    return demo.reason || '⏸️ 不可运行';
+                default:
+                    return '';
+            }
+        }
+
+        // Render demos on page load
+        renderDemos();
+    </script>
+</body>
+</html>

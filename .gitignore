@@ -3,10 +3,18 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-# Environment variables
+# Environment variables (CRITICAL: Never commit these!)
 .env
 .env.local
 .env.*.local
+*.env
+
+# API Keys and secrets (CRITICAL: Never commit these!)
+*_key.txt
+*_token.txt
+*_secret.txt
+secrets/
+credentials/
 
 # OS files
 .DS_Store
@@ -19,6 +27,7 @@ logs/
 # Temporary data
 data/
 *.tmp
+api_keys.json
 
 # IDE
 .vscode/

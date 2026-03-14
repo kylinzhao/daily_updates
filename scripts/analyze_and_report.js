@@ -4,10 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const DATA_DIR = path.join(__dirname, '../data');
 const DAILY_DIR = path.join(__dirname, '../daily');
 const DEMOS_DIR = path.join(__dirname, '../demos');
+const INDEX_FILE = path.join(DEMOS_DIR, 'index.html');
 
 // 确保目录存在
 [DATA_DIR, DAILY_DIR, DEMOS_DIR].forEach(dir => {

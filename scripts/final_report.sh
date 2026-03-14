@@ -25,7 +25,7 @@ if [ ! -f "$ANALYSIS_FILE" ]; then
 fi
 
 # 使用 Node.js 读取 JSON
-NUM_PROJECTS=$(node -p "const fs=require('fs'); const data=JSON.parse(fs.readFileSync('$ANALYSIS_FILE','utf8')); console.log(data.length);")
+NUM_PROJECTS=$(node -e "const fs=require('fs'); const data=JSON.parse(fs.readFileSync('$ANALYSIS_FILE','utf8')); console.log(data.length);")
 
 echo "📊 Total projects: $NUM_PROJECTS"
 

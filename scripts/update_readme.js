@@ -28,22 +28,21 @@ function getTodayAnalysis() {
 function generateTodaySection(projects) {
     const projectsList = projects.map((project, index) => {
         const name = project.name.split('/')[1];
-        return `
-### ${index + 1}. ${project.name}
+        return `### ${index + 1}. ${project.name}
 
 - **⭐ Stars:** ${project.stars}
 - **💻 语言:** ${project.language}
 - **🎯 主要功能:** ${project.main_function}
 - **💡 核心优势:** ${project.core_advantages.join(', ')}
 - **🚀 适用场景:** ${project.use_cases.join(', ')}
-- **🔗 [GitHub](${project.url})`
+- **🔗 [GitHub](${project.url})
 
 #### 📝 描述
 ${project.description}
 
 #### 🛠️ Demo
 技术栈: ${project.demo_language}
-位置: \`demos/${name}_${TODAY}/\`
+位置: demos/${name}_${TODAY}/
 `;
     }).join('\n');
 

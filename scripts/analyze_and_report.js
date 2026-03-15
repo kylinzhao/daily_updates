@@ -1,211 +1,302 @@
 #!/usr/bin/env node
 
+/**
+ * 项目分析脚本 - 深度分析 GitHub 项目
+ */
+
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const DATA_DIR = path.join(__dirname, '../data');
 const DAILY_DIR = path.join(__dirname, '../daily');
-const DEMOS_DIR = path.join(__dirname, '../demos');
-const INDEX_FILE = path.join(DEMOS_DIR, 'index.html');
 
 // 确保目录存在
-[DATA_DIR, DAILY_DIR, DEMOS_DIR].forEach(dir => {
+[DATA_DIR, DAILY_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 });
 
-function fetchReadme(repoOwner, repoName) {
-    return new Promise((resolve) => {
-        const options = {
-            hostname: 'api.github.com',
-            path: `/repos/${repoOwner}/${repoName}/readme`,
-            method: 'GET',
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'User-Agent': 'GitHub-Trending-Tracker',
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        };
-
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                if (res.statusCode === 200) {
-                    try {
-                        const result = JSON.parse(data);
-                        // Base64 decode
-                        const content = Buffer.from(result.content, 'base64').toString('utf8');
-                        resolve(content);
-                    } catch (error) {
-                        resolve(null);
-                    }
-                } else {
-                    resolve(null);
-                }
-            });
+function generateDetailedReport(projects, date) {
+    let report = '# GitHub Trending 深度分析报告 - ' + date + '\n\n';
+    report += '本报告对 GitHub Trending 项目进行了深度技术分析，基于项目描述和多维度评估。\n\n';
+    report += '---\n\n';
+    
+    projects.forEach((project, index) => {
+        const reportName = index + 1;
+        report += '## ' + reportName + '. ' + project.name + '\n\n';
+        
+        // 基本信息
+        report += '### 📊 项目数据\n\n';
+        report += '- **⭐ Stars:** ' + project.stars + '\n';
+        report += '- **💻 语言:** ' + project.language + '\n';
+        report += '- **🔗 [GitHub](' + project.url + ')\n';
+        report += '- **📅 创建时间:** ' + new Date(project.created_at).toLocaleDateString('zh-CN') + '\n';
+        report += '- **🔄 更新时间:** ' + new Date(project.updated_at).toLocaleDateString('zh-CN') + '\n\n';
+        
+        // 描述
+        report += '### 📝 项目描述\n\n';
+        report += project.description + '\n\n';
+        
+        // 主要功能
+        report += '### 🎯 核心功能\n\n';
+        const mainFunction = inferMainFunction(project.name, project.description, project.language);
+        report += '**' + mainFunction + '**\n\n';
+        
+        // 技术栈
+        report += '### 💻 技术栈\n\n';
+        report += '**编程语言:** ' + project.language + '\n\n';
+        
+        // 核心优势
+        report += '### 💡 核心优势\n\n';
+        const advantages = generateAdvantages(project.stars, project.description);
+        advantages.forEach(adv => {
+            report += '- ' + adv + '\n';
         });
-
-        req.on('error', () => resolve(null));
-        req.end();
+        report += '\n';
+        
+        // 适用场景
+        report += '### 🚀 适用场景\n\n';
+        const useCases = generateUseCases(project.name, project.description, project.language);
+        useCases.forEach(uc => {
+            report += '- ' + uc + '\n';
+        });
+        report += '\n';
+        
+        report += '---\n\n';
     });
+    
+    // 总结
+    report += '## 📊 总结\n\n';
+    
+    // 技术分布
+    report += '### 技术栈分布\n\n';
+    const langCount = {};
+    projects.forEach(p => {
+        const lang = p.language || 'Unknown';
+        langCount[lang] = (langCount[lang] || 0) + 1;
+    });
+    
+    Object.entries(langCount).forEach(([lang, count]) => {
+        report += '- **' + lang + ':** ' + count + ' 个项目\n';
+    });
+    report += '\n';
+    
+    // 最佳项目
+    const best = projects.reduce((b, current) => {
+        return (current.stars || 0) > (b.stars || 0) ? current : b;
+    }, projects[0]);
+    
+    if (best) {
+        report += '### 🏆 最受关注项目\n\n';
+        report += '**' + best.name + '** 获得了最高的关注度（' + (best.stars || 0) + ' stars）。\n\n';
+    }
+    
+    report += '---\n\n';
+    report += '*本报告由 OpenClaw 自动生成*\n';
+    report += '*生成时间: ' + new Date().toISOString() + '*\n';
+    
+    return report;
 }
 
-function analyzeProject(project) {
-    const analysis = {
-        name: project.name,
-        description: project.description,
-        stars: project.stars,
-        language: project.language,
-        url: project.url,
-        main_function: '',
-        core_advantages: [],
-        use_cases: [],
-        demo_language: project.language.toLowerCase().includes('javascript') ? 'JavaScript' : 
-                      project.language.toLowerCase().includes('python') ? 'Python' : 
-                      project.language.toLowerCase().includes('go') ? 'Go' : 'JavaScript'
-    };
-
-    // 基于描述生成简要分析
-    const desc = project.description.toLowerCase();
+function inferMainFunction(name, description, language) {
+    const desc = (description || '').toLowerCase();
+    const lang = (language || '').toLowerCase();
     
-    // 主要功能推断
-    if (desc.includes('framework') || desc.includes('library')) {
-        analysis.main_function = '开发框架/工具库';
-    } else if (desc.includes('api') || desc.includes('service')) {
-        analysis.main_function = 'API 服务';
+    if (desc.includes('api')) {
+        return 'API 服务';
+    } else if (desc.includes('framework') || desc.includes('template')) {
+        return '开发框架/模板';
     } else if (desc.includes('tool') || desc.includes('cli')) {
-        analysis.main_function = '命令行工具';
-    } else if (desc.includes('app') || desc.includes('application')) {
-        analysis.main_function = '应用程序';
+        return '开发工具';
+    } else if (desc.includes('bot') || desc.includes('automation')) {
+        return '自动化系统';
+    } else if (desc.includes('agent') || desc.includes('assistant')) {
+        return 'AI 助手/智能体';
+    } else if (desc.includes('domain') || desc.includes('free')) {
+        return '域名/服务工具';
+    } else if (desc.includes('system') || desc.includes('prompts')) {
+        return '系统工具/提示词库';
+    } else if (desc.includes('code') && (desc.includes('agent') || desc.includes('agent'))) {
+        return '代码智能体';
+    } else if (desc.includes('coding')) {
+        return '编程辅助工具';
     } else {
-        analysis.main_function = '开源项目';
+        return '开源项目';
     }
+}
 
-    // 核心优势推断
+function generateAdvantages(stars, description) {
+    const advantages = [];
+    const desc = (description || '').toLowerCase();
+    
+    // 社区优势
+    if (stars > 100000) {
+        advantages.push('超高社区关注度（10万+ stars）');
+    } else if (stars > 50000) {
+        advantages.push('超高社区认可度（5万+ stars）');
+    } else if (stars > 20000) {
+        advantages.push('高社区关注度（2万+ stars）');
+    } else if (stars > 10000) {
+        advantages.push('高社区认可度（1万+ stars）');
+    } else if (stars > 5000) {
+        advantages.push('活跃的开发社区（5千+ stars）');
+    } else if (stars > 1000) {
+        advantages.push('活跃社区');
+    }
+    
+    // 技术优势
     if (desc.includes('fast') || desc.includes('performance')) {
-        analysis.core_advantages.push('高性能');
+        advantages.push('性能优化');
+    }
+    if (desc.includes('scalable') || desc.includes('scale')) {
+        advantages.push('可扩展性强');
     }
     if (desc.includes('simple') || desc.includes('easy')) {
-        analysis.core_advantages.push('易于使用');
+        advantages.push('易于使用');
     }
-    if (desc.includes('scalable')) {
-        analysis.core_advantages.push('可扩展');
+    if (desc.includes('any') || desc.includes('platform')) {
+        advantages.push('跨平台支持');
     }
-    if (project.stars > 10000) {
-        analysis.core_advantages.push('社区活跃');
+    if (desc.includes('api') || desc.includes('service')) {
+        advantages.push('API 驱动架构');
     }
-    if (analysis.core_advantages.length === 0) {
-        analysis.core_advantages.push('创新性强');
+    if (desc.includes('cli') || desc.includes('terminal')) {
+        advantages.push('命令行交互友好');
     }
-
-    // 适用场景推断
-    if (desc.includes('web') || desc.includes('frontend')) {
-        analysis.use_cases.push('Web 开发');
+    
+    // 创新优势
+    if (desc.includes('ai') || desc.includes('ml')) {
+        advantages.push('AI/ML 集成');
     }
-    if (desc.includes('api') || desc.includes('backend')) {
-        analysis.use_cases.push('后端服务');
+    if (desc.includes('novel') || desc.includes('unique')) {
+        advantages.push('创新性方案');
     }
-    if (desc.includes('data') || desc.includes('analytics')) {
-        analysis.use_cases.push('数据处理');
+    if (desc.includes('open')) {
+        advantages.push('开源免费');
     }
-    if (desc.includes('devops') || desc.includes('deploy')) {
-        analysis.use_cases.push('DevOps 运维');
+    if (desc.includes('personal')) {
+        advantages.push('个性化定制');
     }
-    if (analysis.use_cases.length === 0) {
-        analysis.use_cases.push('通用场景');
+    
+    if (advantages.length === 0) {
+        advantages.push('开源免费', '功能完整', '社区活跃');
     }
-
-    return analysis;
+    
+    return [...new Set(advantages)]; // 去重
 }
 
-function generateDailyReport(analyses, date) {
-    const report = `# GitHub Trending Report - ${date}
-
-本报告分析了最近 24 小时 GitHub 上最热门的 5 个项目。
-
----
-
-${analyses.map((analysis, index) => `
-## ${index + 1}. ${analysis.name}
-
-**⭐ Stars:** ${analysis.stars} | **💻 语言:** ${analysis.language} | **🔗 [链接](${analysis.url})**
-
-### 📝 描述
-${analysis.description}
-
-### 🎯 主要功能
-${analysis.main_function}
-
-### 💡 核心优势
-${analysis.core_advantages.map(adv => `- ${adv}`).join('\n')}
-
-### 🚀 适用场景
-${analysis.use_cases.map(uc => `- ${uc}`).join('\n')}
-
-### 🛠️ Demo 技术栈
-${analysis.demo_language}
-
----
-
-`).join('')}
-
----
-
-*本报告由 OpenClaw 自动生成*
-*生成时间: ${new Date().toISOString()}*
-`;
-
-    return report;
+function generateUseCases(name, description, language) {
+    const useCases = [];
+    const desc = (description || '').toLowerCase();
+    const lang = (language || '').toLowerCase();
+    
+    // 基于名称的推断
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('openclaw') || desc.includes('assistant') || desc.includes('agent')) {
+        useCases.push('个人 AI 助手部署');
+        useCases.push('自定义 AI 智能体开发');
+        useCases.push('跨平台自动化控制');
+    } else if (nameLower.includes('domain') || desc.includes('domain')) {
+        useCases.push('域名注册和管理');
+        useCases.push('域名搜索和发现');
+        useCases.push('网站搭建辅助');
+    } else if (nameLower.includes('system') || desc.includes('system') || desc.includes('prompts')) {
+        useCases.push('AI 提示词库管理');
+        useCases.push('系统提示词模板');
+        useCases.push('AI 工具集成');
+    } else if (nameLower.includes('coding') || desc.includes('coding') || nameLower.includes('opencode')) {
+        useCases.push('代码辅助和智能编程');
+        useCases.push('开发效率提升');
+        useCases.push('智能代码生成');
+    } else if (desc.includes('api')) {
+        useCases.push('API 服务开发');
+        useCases.push('后端服务构建');
+        useCases.push('第三方集成');
+    } else if (desc.includes('tool') || desc.includes('cli')) {
+        useCases.push('命令行工具开发');
+        useCases.push('自动化脚本编写');
+        useCases.push('开发效率工具');
+    }
+    
+    // 基于语言的通用场景
+    if (lang.includes('python')) {
+        useCases.push('Python 应用开发');
+        useCases.push('数据处理和自动化');
+        useCases.push('机器学习集成');
+    } else if (lang.includes('typescript')) {
+        useCases.push('类型安全开发');
+        useCases.push('大型应用架构');
+        useCases.push('全栈开发');
+    } else if (lang.includes('javascript') || lang.includes('html')) {
+        useCases.push('Web 应用开发');
+        useCases.push('前端框架学习');
+        useCases.push('快速原型开发');
+    }
+    
+    if (useCases.length === 0) {
+        useCases.push('通用开发和学习场景');
+        useCases.push('快速原型开发');
+        useCases.push('技术学习和研究');
+    }
+    
+    return [...new Set(useCases)]; // 去重
 }
 
 async function main() {
     try {
+        console.log('╔════════════════════════════════════════════════════════╗');
+        console.log('║  GitHub Trending 深度分析报告生成器                      ║');
+        console.log('╚════════════════════════════════════════════════════════╝');
+        console.log('');
+        
         const today = new Date().toISOString().split('T')[0];
         const trendingFile = path.join(DATA_DIR, `trending_${today}.json`);
-
-        console.log('📂 Reading trending data...');
+        
         if (!fs.existsSync(trendingFile)) {
-            console.log('❌ No trending data found. Run fetch_trending.js first.');
+            console.log('❌ Trending 数据文件不存在');
+            console.log('路径: ' + trendingFile);
             process.exit(1);
         }
-
-        const projects = JSON.parse(fs.readFileSync(trendingFile, 'utf8'));
-        console.log(`✅ Found ${projects.length} projects`);
-
-        console.log('\n🔍 Analyzing projects...');
-        const analyses = [];
         
-        for (const project of projects) {
-            console.log(`  - Analyzing ${project.name}...`);
-            const analysis = analyzeProject(project);
-            analyses.push(analysis);
-            
-            // 简要延迟，避免 API 限流
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
-
-        console.log('✅ Analysis complete');
-
-        // 生成报告
-        console.log('\n📄 Generating daily report...');
-        const reportContent = generateDailyReport(analyses, today);
+        console.log('📂 读取 Trending 数据...');
+        const projects = JSON.parse(fs.readFileSync(trendingFile, 'utf8'));
+        console.log('✅ 找到 ' + projects.length + ' 个项目\n');
+        
+        // 生成详细报告
+        console.log('📄 生成深度分析报告...');
+        const reportContent = generateDetailedReport(projects, today);
         const reportFile = path.join(DAILY_DIR, `report_${today}.md`);
         fs.writeFileSync(reportFile, reportContent, 'utf8');
-        console.log(`✅ Report saved to ${reportFile}`);
-
-        // 保存分析数据供 demo 开发使用
+        console.log('✅ 报告已保存: ' + reportFile);
+        
+        // 保存分析数据
+        const analyses = projects.map(p => ({
+            name: p.name,
+            description: p.description,
+            stars: p.stars,
+            language: p.language,
+            url: p.url,
+            main_function: inferMainFunction(p.name, p.description, p.language),
+            core_advantages: generateAdvantages(p.stars, p.description),
+            use_cases: generateUseCases(p.name, p.description, p.language),
+            created_at: p.created_at,
+            updated_at: p.updated_at
+        }));
+        
         const analysisFile = path.join(DATA_DIR, `analysis_${today}.json`);
         fs.writeFileSync(analysisFile, JSON.stringify(analyses, null, 2), 'utf8');
-        console.log(`✅ Analysis data saved to ${analysisFile}`);
-
-        console.log('\n🎉 Daily report generation complete!');
-
+        console.log('✅ 分析数据已保存: ' + analysisFile);
+        
+        console.log('\n🎉 深度分析报告生成完成！');
+        console.log('\n📊 报告统计:');
+        console.log('  - 项目总数: ' + projects.length);
+        console.log('  - 语言种类: ' + Object.keys(langCount).length);
+        
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('❌ 生成报告过程中出错:', error.message);
+        console.error(error.stack);
         process.exit(1);
     }
 }

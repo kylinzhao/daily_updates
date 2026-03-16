@@ -57,10 +57,10 @@ git_push() {
 
 # 阶段 1: 抓取 trending 项目 (22:00)
 phase1_fetch() {
-    log "📍 Phase 1: Fetching GitHub trending projects..."
-    
-    node "$SCRIPT_DIR/fetch_trending.js" >> "$LOG_FILE" 2>&1
-    
+    log "📍 Phase 1: Fetching GitHub trending projects (v2)..."
+
+    node "$SCRIPT_DIR/fetch_trending_v2.js" >> "$LOG_FILE" 2>&1
+
     if [ $? -eq 0 ]; then
         log "✅ Phase 1 completed successfully"
     else

@@ -20,20 +20,23 @@ const DAILY_DIR = path.join(__dirname, '../daily');
 function generateDetailedReport(projects, date) {
     let report = '# GitHub Trending 深度分析报告 - ' + date + '\n\n';
     report += '本报告对 GitHub Trending 项目进行了深度技术分析，基于项目描述和多维度评估。\n\n';
+    report += '**筛选算法：** 综合评分 = log(绝对增长 + 1) + 0.3 × log(基础规模 + 1)\n\n';
     report += '---\n\n';
-    
+
     projects.forEach((project, index) => {
         const reportName = index + 1;
         report += '## ' + reportName + '. ' + project.name + '\n\n';
-        
+
         // 基本信息
         report += '### 📊 项目数据\n\n';
         report += '- **⭐ Stars:** ' + project.stars + '\n';
+        report += '- **📈 增长:** +' + project.deltaStars + ' (' + (project.growthRate * 100).toFixed(2) + '%)\n';
+        report += '- **🎯 综合评分:** ' + project.score.toFixed(4) + '\n';
         report += '- **💻 语言:** ' + project.language + '\n';
         report += '- **🔗 [GitHub](' + project.url + ')\n';
         report += '- **📅 创建时间:** ' + new Date(project.created_at).toLocaleDateString('zh-CN') + '\n';
         report += '- **🔄 更新时间:** ' + new Date(project.updated_at).toLocaleDateString('zh-CN') + '\n\n';
-        
+
         // 描述
         report += '### 📝 项目描述\n\n';
         report += project.description + '\n\n';
@@ -81,14 +84,41 @@ function generateDetailedReport(projects, date) {
         report += '- **' + lang + ':** ' + count + ' 个项目\n';
     });
     report += '\n';
-    
+
+    // 增长统计
+    const totalDelta = projects.reduce((sum, p) => sum + p.deltaStars, 0);
+    const avgGrowthRate = projects.reduce((sum, p) => sum + p.growthRate, 0) / projects.length;
+    report += '### 增长统计\n\n';
+    report += '- **总增长：** +' + totalDelta + ' stars\n';
+    report += '- **平均增长率：** ' + (avgGrowthRate * 100).toFixed(2) + '%\n\n';
+
+    // 增长最快的项目
+    const fastestGrowing = projects.reduce((best, current) => {
+        return current.growthRate > best.growthRate ? current : best;
+    }, projects[0]);
+
+    if (fastestGrowing) {
+        report += '### 🚀 增长最快项目\n\n';
+        report += '**' + fastestGrowing.name + '** 增长最快（+' + fastestGrowing.deltaStars + ' stars，' + (fastestGrowing.growthRate * 100).toFixed(2) + '%）。\n\n';
+    }
+
+    // 综合评分最高的项目
+    const highestScored = projects.reduce((best, current) => {
+        return current.score > best.score ? current : best;
+    }, projects[0]);
+
+    if (highestScored) {
+        report += '### 🏆 综合评分最高项目\n\n';
+        report += '**' + highestScored.name + '** 获得最高的综合评分（' + highestScored.score.toFixed(4) + '）。\n\n';
+    }
+
     // 最佳项目
     const best = projects.reduce((b, current) => {
         return (current.stars || 0) > (b.stars || 0) ? current : b;
     }, projects[0]);
-    
+
     if (best) {
-        report += '### 🏆 最受关注项目\n\n';
+        report += '### 🌟 最受关注项目\n\n';
         report += '**' + best.name + '** 获得了最高的关注度（' + (best.stars || 0) + ' stars）。\n\n';
     }
     
@@ -282,12 +312,24 @@ async function main() {
             core_advantages: generateAdvantages(p.stars, p.description),
             use_cases: generateUseCases(p.name, p.description, p.language),
             created_at: p.created_at,
-            updated_at: p.updated_at
+            updated_at: p.updated_at,
+            // 新增字段
+            deltaStars: p.deltaStars,
+            previousStars: p.previousStars,
+            growthRate: p.growthRate,
+            score: p.score
         }));
         
         const analysisFile = path.join(DATA_DIR, `analysis_${today}.json`);
         fs.writeFileSync(analysisFile, JSON.stringify(analyses, null, 2), 'utf8');
         console.log('✅ 分析数据已保存: ' + analysisFile);
+        
+        // 计算语言数量
+        const langCount = {};
+        projects.forEach(p => {
+            const lang = p.language || 'Unknown';
+            langCount[lang] = (langCount[lang] || 0) + 1;
+        });
         
         console.log('\n🎉 深度分析报告生成完成！');
         console.log('\n📊 报告统计:');

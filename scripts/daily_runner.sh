@@ -8,6 +8,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/../logs"
 REPO_DIR="$SCRIPT_DIR/.."
 
+# 加载环境变量
+if [ -f "$REPO_DIR/.env" ]; then
+    export $(grep -v '^#' "$REPO_DIR/.env" | xargs)
+fi
+
 # 创建日志目录
 mkdir -p "$LOG_DIR"
 

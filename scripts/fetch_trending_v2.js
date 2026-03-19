@@ -276,10 +276,18 @@ async function main() {
         const projects = await fetchTrendingProjects();
         console.log(`✅ Found ${projects.length} candidate projects`);
 
+        // 排除包含 openclaw 的项目
+        console.log('🚫 Filtering out openclaw projects...');
+        const filteredProjects = projects.filter(project => {
+            const fullName = project.full_name.toLowerCase();
+            return !fullName.includes('openclaw');
+        });
+        console.log(`✅ Filtered: ${projects.length - filteredProjects.length} openclaw projects removed`);
+
         // 格式化项目并计算评分
         console.log('⚙️ Calculating scores and generating summaries...');
         const formattedProjects = await Promise.all(
-            projects.slice(0, 20).map(formatProject) // 只处理前 20 个项目，避免 API 调用过多
+            filteredProjects.slice(0, 20).map(formatProject) // 只处理前 20 个项目，避免 API 调用过多
         );
 
         // 按照评分排序

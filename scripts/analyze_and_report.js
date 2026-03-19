@@ -17,15 +17,70 @@ const DAILY_DIR = path.join(__dirname, '../daily');
     }
 });
 
+/**
+ * 获取最近 7 天出现过的项目名称
+ */
+function getRecentProjectNames() {
+    const recentProjects = new Set();
+    const today = new Date();
+
+    // 检查最近 7 天（包括今天）
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const reportFile = path.join(DAILY_DIR, `report_${dateStr}.md`);
+
+        if (fs.existsSync(reportFile)) {
+            const reportContent = fs.readFileSync(reportFile, 'utf8');
+            // 提取项目名称（格式：## 1. owner/repo）
+            const projectMatches = reportContent.match(/## \d+\. ([^\n]+)/g);
+            if (projectMatches) {
+                projectMatches.forEach(match => {
+                    const projectName = match.replace(/## \d+\.\s+/, '');
+                    recentProjects.add(projectName);
+                });
+            }
+        }
+    }
+
+    return recentProjects;
+}
+
 function generateDetailedReport(projects, date) {
     let report = '# GitHub Trending 深度分析报告 - ' + date + '\n\n';
     report += '本报告对 GitHub Trending 项目进行了深度技术分析，基于项目描述和多维度评估。\n\n';
     report += '**筛选算法：** 综合评分 = log(绝对增长 + 1) + 0.3 × log(基础规模 + 1)\n\n';
     report += '---\n\n';
 
+    // 获取最近 7 天的项目
+    const recentProjects = getRecentProjectNames();
+
     projects.forEach((project, index) => {
+        const isRecent = recentProjects.has(project.name);
         const reportName = index + 1;
         report += '## ' + reportName + '. ' + project.name + '\n\n';
+
+        // 如果项目在最近 7 天已经出现过，只简要提及
+        if (isRecent) {
+            report += '> **📌 该项目最近 7 天已分析过，此处仅简要提及**\n\n';
+        }
+
+        // 基本信息
+        report += '### 📊 项目数据\n\n';
+        report += '- **⭐ Stars:** ' + project.stars + '\n';
+        report += '- **📈 增长:** +' + project.deltaStars + ' (' + (project.growthRate * 100).toFixed(2) + '%)\n';
+        report += '- **🎯 综合评分:** ' + project.score.toFixed(4) + '\n';
+        report += '- **💻 语言:** ' + project.language + '\n';
+        report += '- **🔗 [GitHub](' + project.url + ')\n';
+        report += '- **📅 创建时间:** ' + new Date(project.created_at).toLocaleDateString('zh-CN') + '\n';
+        report += '- **🔄 更新时间:** ' + new Date(project.updated_at).toLocaleDateString('zh-CN') + '\n\n';
+
+        // 如果项目在最近 7 天已分析过，跳过详细分析
+        if (isRecent) {
+            report += '---\n\n';
+            return;
+        }
 
         // 基本信息
         report += '### 📊 项目数据\n\n';

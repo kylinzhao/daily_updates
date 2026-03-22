@@ -1,47 +1,47 @@
 [
   {
     "name": "DigitalPlatDev/FreeDomain",
-    "stars": 153064,
+    "stars": 153154,
     "date": "2026-03-19"
   },
   {
     "name": "x1xhlol/system-prompts-and-models-of-ai-tools",
-    "stars": 131949,
+    "stars": 132067,
     "date": "2026-03-19"
   },
   {
     "name": "anomalyco/opencode",
-    "stars": 124892,
+    "stars": 125297,
     "date": "2026-03-19"
   },
   {
     "name": "Shubhamsaboo/awesome-llm-apps",
-    "stars": 102764,
+    "stars": 102829,
     "date": "2026-03-19"
   },
   {
     "name": "deepseek-ai/DeepSeek-V3",
-    "stars": 102222,
+    "stars": 102238,
     "date": "2026-03-19"
   },
   {
     "name": "google-gemini/gemini-cli",
-    "stars": 98289,
-    "date": "2026-03-19"
-  },
-  {
-    "name": "anthropics/skills",
-    "stars": 97042,
+    "stars": 98356,
     "date": "2026-03-19"
   },
   {
     "name": "obra/superpowers",
-    "stars": 96594,
+    "stars": 98217,
+    "date": "2026-03-19"
+  },
+  {
+    "name": "anthropics/skills",
+    "stars": 97553,
     "date": "2026-03-19"
   },
   {
     "name": "firecrawl/firecrawl",
-    "stars": 94921,
+    "stars": 95143,
     "date": "2026-03-19"
   },
   {
@@ -51,52 +51,52 @@
   },
   {
     "name": "microsoft/markitdown",
-    "stars": 90950,
+    "stars": 90970,
     "date": "2026-03-19"
   },
   {
     "name": "affaan-m/everything-claude-code",
-    "stars": 85883,
+    "stars": 87125,
     "date": "2026-03-19"
   },
   {
     "name": "punkpeye/awesome-mcp-servers",
-    "stars": 83492,
+    "stars": 83537,
     "date": "2026-03-19"
   },
   {
     "name": "modelcontextprotocol/servers",
-    "stars": 81458,
+    "stars": 81519,
     "date": "2026-03-19"
   },
   {
     "name": "browser-use/browser-use",
-    "stars": 81235,
+    "stars": 81301,
     "date": "2026-03-19"
   },
   {
     "name": "anthropics/claude-code",
-    "stars": 79747,
+    "stars": 79961,
     "date": "2026-03-19"
   },
   {
     "name": "github/spec-kit",
-    "stars": 78299,
+    "stars": 78499,
     "date": "2026-03-19"
   },
   {
     "name": "OpenHands/OpenHands",
-    "stars": 69362,
+    "stars": 69399,
     "date": "2026-03-19"
   },
   {
     "name": "daytonaio/daytona",
-    "stars": 67059,
+    "stars": 67416,
     "date": "2026-03-19"
   },
   {
     "name": "openai/codex",
-    "stars": 66173,
+    "stars": 66316,
     "date": "2026-03-19"
   }
 ]

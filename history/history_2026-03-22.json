@@ -1,102 +1,102 @@
 [
   {
     "name": "affaan-m/everything-claude-code",
-    "stars": 95228,
+    "stars": 96367,
     "date": "2026-03-22"
   },
   {
     "name": "obra/superpowers",
-    "stars": 103874,
+    "stars": 104362,
     "date": "2026-03-22"
   },
   {
     "name": "anomalyco/opencode",
-    "stars": 127591,
+    "stars": 127791,
     "date": "2026-03-22"
   },
   {
     "name": "anthropics/skills",
-    "stars": 99490,
+    "stars": 99729,
     "date": "2026-03-22"
   },
   {
     "name": "github/spec-kit",
-    "stars": 79582,
-    "date": "2026-03-22"
-  },
-  {
-    "name": "firecrawl/firecrawl",
-    "stars": 96268,
-    "date": "2026-03-22"
-  },
-  {
-    "name": "anthropics/claude-code",
-    "stars": 81067,
+    "stars": 79712,
     "date": "2026-03-22"
   },
   {
     "name": "browser-use/browser-use",
-    "stars": 81961,
+    "stars": 82149,
+    "date": "2026-03-22"
+  },
+  {
+    "name": "firecrawl/firecrawl",
+    "stars": 96367,
     "date": "2026-03-22"
   },
   {
     "name": "daytonaio/daytona",
-    "stars": 68969,
+    "stars": 69144,
+    "date": "2026-03-22"
+  },
+  {
+    "name": "anthropics/claude-code",
+    "stars": 81162,
     "date": "2026-03-22"
   },
   {
     "name": "microsoft/markitdown",
-    "stars": 91485,
+    "stars": 91611,
     "date": "2026-03-22"
   },
   {
     "name": "DigitalPlatDev/FreeDomain",
-    "stars": 153665,
+    "stars": 153722,
     "date": "2026-03-22"
   },
   {
     "name": "x1xhlol/system-prompts-and-models-of-ai-tools",
-    "stars": 132580,
+    "stars": 132616,
     "date": "2026-03-22"
   },
   {
     "name": "openai/codex",
-    "stars": 66805,
+    "stars": 66844,
     "date": "2026-03-22"
   },
   {
     "name": "google-gemini/gemini-cli",
-    "stars": 98634,
+    "stars": 98663,
     "date": "2026-03-22"
   },
   {
     "name": "Shubhamsaboo/awesome-llm-apps",
-    "stars": 103086,
-    "date": "2026-03-22"
-  },
-  {
-    "name": "punkpeye/awesome-mcp-servers",
-    "stars": 83785,
+    "stars": 103123,
     "date": "2026-03-22"
   },
   {
     "name": "modelcontextprotocol/servers",
-    "stars": 81738,
+    "stars": 81767,
+    "date": "2026-03-22"
+  },
+  {
+    "name": "punkpeye/awesome-mcp-servers",
+    "stars": 83800,
     "date": "2026-03-22"
   },
   {
     "name": "OpenHands/OpenHands",
-    "stars": 69520,
+    "stars": 69535,
     "date": "2026-03-22"
   },
   {
     "name": "deepseek-ai/DeepSeek-V3",
-    "stars": 102293,
+    "stars": 102304,
     "date": "2026-03-22"
   },
   {
     "name": "deepseek-ai/DeepSeek-R1",
-    "stars": 91971,
+    "stars": 91977,
     "date": "2026-03-22"
   }
 ]

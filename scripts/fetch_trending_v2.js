@@ -65,6 +65,34 @@ function fetchTrendingProjects() {
 }
 
 /**
+ * 获取过去 5 天已推荐过的项目名称
+ */
+function getRecentRecommendedProjects(days = 5) {
+    const recommendedProjects = new Set();
+
+    for (let i = 1; i <= days; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const historyFile = path.join(HISTORY_DIR, `history_${dateStr}.json`);
+
+        if (fs.existsSync(historyFile)) {
+            try {
+                const historyData = JSON.parse(fs.readFileSync(historyFile, 'utf8'));
+                historyData.forEach(project => {
+                    recommendedProjects.add(project.name);
+                });
+            } catch (error) {
+                console.error(`读取历史文件 ${historyFile} 失败:`, error.message);
+            }
+        }
+    }
+
+    console.log(`📋 过去 ${days} 天已推荐 ${recommendedProjects.size} 个项目`);
+    return recommendedProjects;
+}
+
+/**
  * 获取项目的历史 Star 数据
  */
 function fetchProjectHistory(fullName) {
@@ -276,13 +304,27 @@ async function main() {
         const projects = await fetchTrendingProjects();
         console.log(`✅ Found ${projects.length} candidate projects`);
 
-        // 排除包含 openclaw 的项目
-        console.log('🚫 Filtering out openclaw projects...');
+        // 获取过去 5 天已推荐过的项目
+        const recentProjects = getRecentRecommendedProjects(5);
+
+        // 排除包含 openclaw 的项目和过去 5 天已推荐过的项目
+        console.log('🚫 Filtering out openclaw and recent projects...');
         const filteredProjects = projects.filter(project => {
             const fullName = project.full_name.toLowerCase();
-            return !fullName.includes('openclaw');
+
+            // 过滤 openclaw 项目
+            if (fullName.includes('openclaw')) {
+                return false;
+            }
+
+            // 过滤过去 5 天已推荐过的项目
+            if (recentProjects.has(project.full_name)) {
+                return false;
+            }
+
+            return true;
         });
-        console.log(`✅ Filtered: ${projects.length - filteredProjects.length} openclaw projects removed`);
+        console.log(`✅ Filtered: ${projects.length - filteredProjects.length} projects removed (openclaw + recent)`);
 
         // 格式化项目并计算评分
         console.log('⚙️ Calculating scores and generating summaries...');
